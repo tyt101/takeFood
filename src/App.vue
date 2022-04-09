@@ -8,10 +8,10 @@
 <script>
 import FooterNav from './components/FooterNav/FooterNav.vue'
 export default {
-  components: { FooterNav },
-
-  component: {
-    FooterNav
+  components: {FooterNav},
+  mounted () {
+    this.$store.dispatch('getAddress')
+    this.$store.dispatch('getUserInfo')
   }
 }
 </script>

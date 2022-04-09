@@ -1,60 +1,154 @@
 <template>
-<section class="loginContainer">
-    <div class="loginInner">
-    <div class="login_header">
-        <h2 class="login_logo">校园快送</h2>
-        <div class="login_header_title">
-        <a href="javascript:;" class="on">短信登录</a>
-        <a href="javascript:;">密码登录</a>
-        </div>
-    </div>
-    <div class="login_content">
-        <form>
-        <div class="on">
-            <section class="login_message">
-            <input type="tel" maxlength="11" placeholder="手机号">
-            <button disabled="disabled" class="get_verification">获取验证码</button>
-            </section>
-            <section class="login_verification">
-            <input type="tel" maxlength="8" placeholder="验证码">
-            </section>
-            <section class="login_hint">
-            温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
-            <a href="javascript:;">《用户服务协议》</a>
-            </section>
-        </div>
-        <div>
-            <section>
-            <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
-            </section>
-            <section class="login_verification">
-                <input type="tel" maxlength="8" placeholder="密码">
-                <div class="switch_button off">
-                <div class="switch_circle"></div>
-                <span class="switch_text">...</span>
-                </div>
-            </section>
-            <section class="login_message">
-                <input type="text" maxlength="11" placeholder="验证码">
-                <img class="get_verification" src="./images/captcha.svg" alt="captcha">
-            </section>
-            </section>
-        </div>
-        <button class="login_submit">登录</button>
-        </form>
-        <a href="javascript:;" class="about_us">关于我们</a>
-    </div>
-    <a href="javascript:" class="go_back" @click="$router.back()">
-        <i class="iconfont icon-jiantou2"></i>
-    </a>
-    </div>
-</section>
+  <section class="loginContainer">
+      <div class="loginInner">
+      <div class="login_header">
+          <h2 class="login_logo">校园快送</h2>
+          <div class="login_header_title">
+          <a href="javascript:;" :class="{on:loginWay}" @click="loginWay=true">短信登录</a>
+          <a href="javascript:;" :class="{on:!loginWay}" @click="loginWay=false">密码登录</a>
+          </div>
+      </div>
+      <div class="login_content">
+          <form @submit.prevent="login">
+            <div :class="{on:loginWay}">
+                <section class="login_message">
+                <input type="tel" maxlength="11" placeholder="手机号" v-model="phone">
+                <button
+                :disabled="!rightPhone"
+                class="get_verification"
+                :class="{right_phone:rightPhone}"
+                @click.prevent="getCode()">
+                  {{computeTime?`已发送(${computeTime})s`:'获取验证码'}}
+                </button>
+                </section>
+                <section class="login_verification">
+                <input type="tel" maxlength="8" placeholder="验证码" v-model="code">
+                </section>
+                <section class="login_hint">
+                温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
+                <a href="javascript:;">《用户服务协议》</a>
+                </section>
+            </div>
+            <div :class="{on:!loginWay}">
+                <section>
+                <section class="login_message">
+                    <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" v-model="name">
+                </section>
+                <section class="login_verification" >
+                    <input type="password" maxlength="8" placeholder="密码" v-if="showPwd" v-model="pwd">
+                    <input type="text" maxlength="8" placeholder="密码" v-if="!showPwd" v-model="pwd">
+                    <div class="switch_button" :class="showPwd?'on':'off'" @click="showPwd=!showPwd">
+                    <div class="switch_circle" :class="{right:showPwd}" ></div>
+                    <span class="switch_text">{{showPwd?'***':'...'}}</span>
+                    </div>
+                </section>
+                <section class="login_message">
+                    <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
+                    <img class="get_verification" ref="captcha" src="http://localhost:4000/captcha" alt="captcha" @click="getCaptcha">
+                </section>
+                </section>
+            </div>
+            <button class="login_submit">登录</button>
+          </form>
+          <a href="javascript:;" class="about_us">关于我们</a>
+      </div>
+      <a href="javascript:" class="go_back" @click="$router.back()">
+          <i class="iconfont icon-jiantou2"></i>
+      </a>
+      </div>
+      <alert-tip :alert-text="alertText" v-if="showAlert" @closeTip="showAlert=false" />
+  </section>
 </template>
 
 <script>
+import AlertTip from '../../components/AlertTip/AlertTip.vue'
+import {reqSendCode, reqSmsLogin, reqPwdLogin} from '../../api'
 export default {
-
+  data () {
+    return {
+      loginWay: true, // true代表短信登录，false代表密码登录
+      phone: '',
+      code: '',
+      name: '',
+      pwd: '',
+      captcha: '',
+      computeTime: '',
+      showPwd: true,
+      alertText: '',
+      showAlert: false
+    }
+  },
+  computed: {
+    rightPhone () {
+      return /^1\d{10}$/.test(this.phone)
+    }
+  },
+  components: {AlertTip},
+  methods: {
+    async getCode () {
+      if (!this.computeTime) {
+        this.computeTime = 30
+        this.timer = setInterval(() => {
+          this.computeTime -= 1
+          if (!this.computeTime) {
+            // this.phone = ''
+            clearInterval(this.timer)
+          }
+        }, 1000)
+        console.log(this.phone)
+        const result = await reqSendCode(this.phone)
+        if (result.code === 1) {
+          this.alertShow(result.msg)
+          if (this.computeTime) {
+            this.computeTime = 0
+            clearInterval(this.timer)
+            this.timer = undefined
+          }
+        } else {
+          return result
+        }
+      }
+    },
+    getCaptcha () {
+      this.$refs.captcha.src = 'http://localhost:4000/captcha?time=' + Date.now()
+    },
+    alertShow (text) {
+      this.showAlert = true
+      this.alertText = text
+    },
+    async login () {
+      let result
+      if (this.loginWay) {
+        const {rightPhone, phone, code} = this
+        if (!rightPhone) {
+          this.alertShow('手机号不正确')
+        } else if (!/^\d{6}$/.test(code)) {
+          this.alertShow('验证码必须是六位数字')
+        } else {
+          result = await reqSmsLogin(phone, code)
+        }
+      } else {
+        const {name, pwd, captcha} = this
+        if (!name) {
+          this.alertShow('用户名不能为空')
+        } else if (!pwd) {
+          this.alertShow('密码不能为空')
+        } else if (!captcha) {
+          this.alertShow('用户名不能为空')
+        } else {
+          result = await reqPwdLogin({name, pwd, captcha})
+        }
+      }
+      if (result.code === 1) {
+        this.getCaptcha()
+        this.alertShow(result.msg)
+      } else {
+        const user = result.data
+        this.$store.dispatch('reCordUserInfo', user)
+        this.$router.replace(`/profile`)
+      }
+    }
+  }
 }
 </script>
 
@@ -119,6 +213,8 @@ export default {
                   color #ccc
                   font-size 14px
                   background transparent
+                  &.right_phone
+                    color black
               .login_verification
                 position relative
                 margin-top 16px
@@ -147,7 +243,7 @@ export default {
                   &.on
                     background #02a774
                   >.switch_circle
-                    //transform translateX(27px)
+
                     position absolute
                     top -1px
                     left -1px
@@ -158,6 +254,8 @@ export default {
                     background #fff
                     box-shadow 0 2px 4px 0 rgba(0,0,0,.1)
                     transition transform .3s
+                    &.right
+                      transform translateX(27px)
               .login_hint
                 margin-top 12px
                 color #999

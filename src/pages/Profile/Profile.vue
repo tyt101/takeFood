@@ -3,17 +3,17 @@
     <section class="profile">
       <header-nav title="我的" />
       <section class="profile-number">
-        <router-link href="javascript:" class="profile-link" to="/login">
+        <router-link href="javascript:" class="profile-link" :to="userInfo._id?'/userinfo':'/login'">
           <div class="profile_image">
             <i class="iconfont icon-person"></i>
           </div>
           <div class="user-info">
-            <p class="user-info-top">登录/注册</p>
+            <p class="user-info-top" v-if="!userInfo.phone">{{userInfo.name||'登录/注册'}}</p>
             <p>
               <span class="user-icon">
                 <i class="iconfont icon-shouji icon-mobile"></i>
               </span>
-              <span class="icon-mobile-number">暂无绑定手机号</span>
+              <span class="icon-mobile-number">{{userInfo.phone||'暂无绑定手机号'}}</span>
             </p>
           </div>
           <span class="arrow">
@@ -89,15 +89,33 @@
           </div>
         </a>
       </section>
+      <section class="profile_my_order border-1px">
+        <mt-button type="danger" style="width:100%" v-if="userInfo._id" @click="logout">退出登录</mt-button>
+      </section>
     </section>
   </div>
 </template>
 
 <script>
+import {mapState} from 'vuex'
+import {MessageBox} from 'mint-ui'
 import HeaderNav from '../../components/HeaderNav/HeaderNav.vue'
 export default {
   components: {
     HeaderNav
+  },
+  computed: {
+    ...mapState(['userInfo'])
+  },
+  methods: {
+    logout () {
+      MessageBox.confirm('确认退出登录吗').then(() => {
+        console.log('退出成功')
+        this.$store.commit('cancelLogin')
+      }, () => {
+        console.log('取消退出')
+      })
+    }
   }
 }
 </script>
