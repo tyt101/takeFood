@@ -6,5 +6,8 @@ export default {
     address: {},
     categorys: [],
     shops: [],
-    userInfo: {}
+    userInfo: {}, // 用户信息
+    info: {}, // 商家信息
+    goods: {},
+    ratings: {}
 }

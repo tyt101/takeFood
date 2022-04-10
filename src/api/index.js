@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable eol-last */
 // 接口请求模块
 
@@ -20,3 +21,10 @@ export const reqSmsLogin = (phone, code) => ajax(BASE_URL + '/login_sms', { phon
 export const reqUserInfo = () => ajax(BASE_URL + '/userinfo')
 
 export const reqLogout = () => ajax(BASE_URL + '/logout')
+
+// mockServer里面mock的数据
+export const reqShopInfo = () => ajax('/info')
+
+export const reqShopGoods = () => ajax('/goods')
+
+export const reqShopRatings = () => ajax('/ratings')

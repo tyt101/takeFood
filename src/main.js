@@ -7,6 +7,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import { Button } from 'mint-ui'
+import './mock/mockServer' // 加载MockServer
 Vue.component(Button.name, Button)
 new Vue({
     el: '#app',

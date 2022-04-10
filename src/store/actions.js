@@ -5,13 +5,19 @@ import {
     RECEOVE_ADDRESS,
     RECEOVE_CATEGORYS,
     RECEIVE_SHOPS,
-    RECEIVE_USERINFO
+    RECEIVE_USERINFO,
+    RECEIVE_SHOP_INFO,
+    RECEIVE_SHOP_GOODS,
+    RECEIVE_SHOP_RATINGS
 } from './mutation-type'
 import {
     reqAddress,
     reqFoodCategorys,
     reqShop,
-    reqUserInfo
+    reqUserInfo,
+    reqShopInfo,
+    reqShopGoods,
+    reqShopRatings
 } from '../api'
 
 export default {
@@ -44,5 +50,24 @@ export default {
         const result = await reqUserInfo()
         const userInfo = result.data
         commit(RECEIVE_USERINFO, { userInfo })
+    },
+    async getShopInfo({ commit }) {
+        const result = await reqShopInfo()
+        if (result.code === 0) {
+            commit(RECEIVE_SHOP_INFO, result.data)
+        }
+    },
+    async getShopGoods({ commit }, callback) {
+        const result = await reqShopGoods()
+        if (result.code === 0) {
+            commit(RECEIVE_SHOP_GOODS, result.data)
+        }
+        callback && callback()
+    },
+    async getShopRatings({ commit }) {
+        const result = await reqShopRatings()
+        if (result.code === 0) {
+            commit(RECEIVE_SHOP_RATINGS, result.data)
+        }
     }
 }

@@ -98,7 +98,7 @@
 
 <script>
 import {mapState} from 'vuex'
-import {MessageBox} from 'mint-ui'
+import {MessageBox, Toast} from 'mint-ui'
 import HeaderNav from '../../components/HeaderNav/HeaderNav.vue'
 export default {
   components: {
@@ -110,8 +110,8 @@ export default {
   methods: {
     logout () {
       MessageBox.confirm('确认退出登录吗').then(() => {
-        console.log('退出成功')
         this.$store.commit('cancelLogin')
+        Toast('登出成功')
       }, () => {
         console.log('取消退出')
       })

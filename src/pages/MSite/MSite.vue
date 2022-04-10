@@ -14,7 +14,7 @@
     <div class="swiper-container" v-if="categorys.length">
       <div class="swiper-wrapper" >
         <div class="swiper-slide" v-for=" (foodx) in categorysArr" :key="foodx.id">
-          <a href="javascript:" class="link_to_food" v-for="(foody) in foodx" :key="foody.id">
+          <a href="javascript:" class="link_to_food" v-for="(foody) in foodx" :key="foody.id" >
             <div class="food_container">
               <img :src="baseUrl+foody.image_url">
             </div>
