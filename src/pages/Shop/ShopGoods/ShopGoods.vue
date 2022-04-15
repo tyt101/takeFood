@@ -3,7 +3,12 @@
     <div class="goods">
       <div class="menu-wrapper" ref="menuWrapper">
         <ul>
-          <li class="menu-item" v-for="(good,index) in goods" :key="index" :class="{current: index===currentIndex}">
+          <li class="menu-item"
+          v-for="(good,index) in goods"
+          :key="index"
+          :class="{current: index===currentIndex}"
+          @click="positPix(index)"
+          >
             <span class="text bottom-border-1px">
             <img class="icon" :src="good.icon" v-if="good.icon">
             {{good.name}}{{index}}
@@ -16,7 +21,7 @@
           <li class="food-list-hook" v-for="(good,index) in goods" :key="index" >
             <h1 class="title">{{good.name}}</h1>
             <ul>
-              <li class="food-item bottom-border-1px" v-for="(food,index) in good.foods" :key="index">
+              <li class="food-item bottom-border-1px" v-for="(food,index) in good.foods" :key="index" @click="showFood(food)">
                 <div class="icon">
                   <img width="57" height="57" :src="food.icon">
                 </div>
@@ -31,7 +36,7 @@
                       <span class="now" v-if="food.oldPrice">￥{{food.oldPrice}}</span>
                     </div>
                     <div class="cartcontrol-wrapper">
-                    CartControl
+                      <cart-control :food="food" />
                     </div>
                 </div>
               </li>
@@ -40,28 +45,36 @@
         </ul>
       </div>
     </div>
+    <Food :food="food" ref="food" />
+    <shop-card />
   </div>
 </template>
 <script>
 import BScroll from 'better-scroll'
+import CartControl from '../../../components/CartControl/CartControl.vue'
+import ShopCard from '../../../components/ShopCard/ShopCard.vue'
+import Food from '../../../components/Food/Food.vue'
 import {mapState} from 'vuex'
 export default {
   data () {
     return {
       scrollY: 0,
-      tops: []
+      tops: [],
+      food: {}
     }
   },
   mounted () {
     this.$store.dispatch('getShopGoods', () => {
       this.$nextTick(() => {
         // eslint-disable-next-line no-new
-        new BScroll('.menu-wrapper')
+        new BScroll('.menu-wrapper', {
+          click: true
+        })
         // eslint-disable-next-line no-new
-        const foodsScroll = new BScroll('.foods-wrapper', {
+        this.foodsScroll = new BScroll('.foods-wrapper', {
           probeType: 2
         })
-        foodsScroll.on('scroll', (e) => {
+        this.foodsScroll.on('scroll', (e) => {
           this.scrollY = Math.abs(e.y)
         })
         this._initTops()
@@ -89,7 +102,20 @@ export default {
         tops.push(top)
       })
       this.tops = tops
+    },
+    positPix (index) {
+      console.log(index)
+      let scrollY = -this.tops[index]
+      this.scrollY = -scrollY
+      this.foodsScroll.scrollTo(0, scrollY, 1000)
+    },
+    showFood (food) {
+      this.food = food
+      this.$refs.food.toggleShow()
     }
+  },
+  components: {
+    CartControl, Food, ShopCard
   }
 }
 </script>

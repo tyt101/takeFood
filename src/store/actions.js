@@ -8,7 +8,9 @@ import {
     RECEIVE_USERINFO,
     RECEIVE_SHOP_INFO,
     RECEIVE_SHOP_GOODS,
-    RECEIVE_SHOP_RATINGS
+    RECEIVE_SHOP_RATINGS,
+    INCREASE_FOOD_COUNT,
+    DECREASE_FOOD_COUNT
 } from './mutation-type'
 import {
     reqAddress,
@@ -68,6 +70,13 @@ export default {
         const result = await reqShopRatings()
         if (result.code === 0) {
             commit(RECEIVE_SHOP_RATINGS, result.data)
+        }
+    },
+    updateFoodCount({ commit }, { isAdd, food }) {
+        if (isAdd) {
+            commit(INCREASE_FOOD_COUNT, { food })
+        } else {
+            commit(DECREASE_FOOD_COUNT, { food })
         }
     }
 }
