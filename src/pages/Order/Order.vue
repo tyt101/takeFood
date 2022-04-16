@@ -7,6 +7,16 @@
           <h3>登录后查看外卖订单</h3>
           <button >立即登陆</button>
         </section>
+        <li v-for="(food,index) in cartFoods" :key="index" class="top">
+          <a>
+            <div class="cartLeft">
+              <img :src="food.image_path" :alt="food.name">
+            </div>
+            <div class="cartRight">
+
+            </div>
+          </a>
+        </li>
       </section>
     </div>
 </template>
@@ -19,11 +29,15 @@ export default {
     HeaderNav
   },
   computed: {
-    ...mapState(['userInfo'])
+    ...mapState(['userInfo', 'cartFoods'])
   }
 }
 </script>
-
+<style lang="css">
+  .top{
+    transform: translateY(50px);
+  }
+</style>
 <style lang="stylus">
 @import '../../common/stylus/mixins.styl';
 .order  //订单

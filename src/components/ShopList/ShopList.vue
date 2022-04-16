@@ -37,7 +37,6 @@
         </div>
         </a>
     </li>
-
     </ul>
     <ul v-else>
       <li v-for="(item,index) in 6" :key="index">
