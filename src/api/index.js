@@ -22,6 +22,8 @@ export const reqUserInfo = () => ajax(BASE_URL + '/userinfo')
 
 export const reqLogout = () => ajax(BASE_URL + '/logout')
 
+export const reqKeySearch = (geohash, keyword) => ajax(BASE_URL + '/search_shops', { geohash, keyword })
+
 // mockServer里面mock的数据
 export const reqShopInfo = () => ajax('/info')
 
